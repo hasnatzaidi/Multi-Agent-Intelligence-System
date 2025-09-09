@@ -2,6 +2,7 @@
 Design and implement a minimal multi-agent system in which a Coordinator (Manager)  agent orchestrates three specialized worker agents to answer user questions. The  solution should demonstrate clear role separation, inter-agent coordination, structured  memory, and adaptive decision-making. 
 
 **System Architecture**
+
 🎯 **Coordinator Agent (Manager)**
 
 Orchestrates the entire process
@@ -17,6 +18,7 @@ Analysis Agent: Focuses on logical reasoning, pattern recognition, and critical 
 Creative Agent: Generates innovative solutions and alternative perspectives
 
 **Key Features Demonstrated**
+
 🔄 **Inter-Agent Coordination**
 
 Sequential execution with dependency management
