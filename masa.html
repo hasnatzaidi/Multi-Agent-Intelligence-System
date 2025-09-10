@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent System</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .agents-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .question-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        .question-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .ask-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .ask-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .ask-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .agent {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .agent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .agent-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .agent-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+        
+        .coordinator .agent-icon {
+            background: linear-gradient(135deg, #9C27B0 0%, #8BC34A 100%);
+        }
+        
+        .research .agent-icon {
+            background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+        }
+        
+        .analysis .agent-icon {
+            background: linear-gradient(135deg, #FF9800 0%, #FF5722 100%);
+        }
+        
+        .creative .agent-icon {
+            background: linear-gradient(135deg, #E91E63 0%, #9C27B0 100%);
+        }
+        
+        .agent-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .agent-status {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .agent-output {
+            background: #f0f8ff;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 60px;
+        }
+        
+        .thinking {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        
+        .response-section {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .final-response {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e8f4fd 100%);
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .memory-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .memory-item {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #856404;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Multi-Agent Intelligence System</h1>
+            <p>Coordinated AI agents working together to answer your questions</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <h3 style="margin-bottom: 15px; color: #333;">Ask a Question</h3>
+                <textarea class="question-input" id="questionInput" placeholder="Enter your question here..." rows="4"></textarea>
+                <button class="ask-button" id="askButton" onclick="processQuestion()">Ask Question</button>
+                
+                <div class="memory-section">
+                    <h4 style="color: #856404; margin-bottom: 10px;">📚 System Memory</h4>
+                    <div id="memoryDisplay">No previous interactions</div>
+                </div>
+            </div>
+            
+            <div class="agents-section">
+                <h3 style="margin-bottom: 20px; color: #333;">🎯 Agent Network</h3>
+                
+                <div class="agent coordinator">
+                    <div class="agent-header">
+                        <div class="agent-icon">C</div>
+                        <div>
+                            <div class="agent-name">Coordinator</div>
+                            <div class="agent-status" id="coordinatorStatus">Ready to orchestrate</div>
+                        </div>
+                    </div>
+                    <div class="agent-output" id="coordinatorOutput">Waiting for instructions...</div>
+                </div>
+                
+                <div class="agent research">
+                    <div class="agent-header">
+                        <div class="agent-icon">R</div>
+                        <div>
+                            <div class="agent-name">Research Agent</div>
+                            <div class="agent-status" id="researchStatus">Specializes in factual information</div>
+                        </div>
+                    </div>
+                    <div class="agent-output" id="researchOutput">Ready to gather information...</div>
+                </div>
+                
+                <div class="agent analysis">
+                    <div class="agent-header">
+                        <div class="agent-icon">A</div>
+                        <div>
+                            <div class="agent-name">Analysis Agent</div>
+                            <div class="agent-status" id="analysisStatus">Specializes in logical reasoning</div>
+                        </div>
+                    </div>
+                    <div class="agent-output" id="analysisOutput">Ready to analyze patterns...</div>
+                </div>
+                
+                <div class="agent creative">
+                    <div class="agent-header">
+                        <div class="agent-icon">X</div>
+                        <div>
+                            <div class="agent-name">Creative Agent</div>
+                            <div class="agent-status" id="creativeStatus">Specializes in innovative solutions</div>
+                        </div>
+                    </div>
+                    <div class="agent-output" id="creativeOutput">Ready to think outside the box...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="response-section">
+            <h3 style="margin-bottom: 15px; color: #333;">💡 Final Response</h3>
+            <div class="final-response" id="finalResponse">
+                No question asked yet. The system is ready to coordinate multiple agents to provide comprehensive answers.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Multi-Agent System Implementation
+        class MultiAgentSystem {
+            constructor() {
+                this.memory = {
+                    conversations: [],
+                    patterns: {},
+                    expertise: {
+                        research: ['facts', 'data', 'information', 'statistics', 'history'],
+                        analysis: ['analyze', 'compare', 'evaluate', 'logic', 'reasoning'],
+                        creative: ['creative', 'innovative', 'brainstorm', 'design', 'artistic']
+                    }
+                };
+                
+                this.agents = {
+                    coordinator: new CoordinatorAgent(),
+                    research: new ResearchAgent(),
+                    analysis: new AnalysisAgent(),
+                    creative: new CreativeAgent()
+                };
+            }
+            
+            async processQuestion(question) {
+                // Update memory
+                this.memory.conversations.push({
+                    question: question,
+                    timestamp: new Date().toISOString(),
+                    context: this.extractContext(question)
+                });
+                
+                // Coordinator orchestrates the process
+                return await this.agents.coordinator.orchestrate(question, this.agents, this.memory);
+            }
+            
+            extractContext(question) {
+                const context = {
+                    type: 'general',
+                    complexity: 'medium',
+                    requiredAgents: []
+                };
+                
+                const lowerQuestion = question.toLowerCase();
+                
+                // Determine question type and required agents
+                if (lowerQuestion.includes('fact') || lowerQuestion.includes('data') || lowerQuestion.includes('information')) {
+                    context.requiredAgents.push('research');
+                }
+                
+                if (lowerQuestion.includes('analyze') || lowerQuestion.includes('compare') || lowerQuestion.includes('why')) {
+                    context.requiredAgents.push('analysis');
+                }
+                
+                if (lowerQuestion.includes('creative') || lowerQuestion.includes('design') || lowerQuestion.includes('innovative')) {
+                    context.requiredAgents.push('creative');
+                }
+                
+                // If no specific agents identified, use all
+                if (context.requiredAgents.length === 0) {
+                    context.requiredAgents = ['research', 'analysis', 'creative'];
+                }
+                
+                return context;
+            }
+            
+            updateMemory(question, response, agentContributions) {
+                const lastConversation = this.memory.conversations[this.memory.conversations.length - 1];
+                if (lastConversation && lastConversation.question === question) {
+                    lastConversation.response = response;
+                    lastConversation.agentContributions = agentContributions;
+                }
+            }
+        }
+        
+        class CoordinatorAgent {
+            constructor() {
+                this.name = "Coordinator";
+                this.role = "Orchestrates other agents and synthesizes responses";
+            }
+            
+            async orchestrate(question, agents, memory) {
+                this.updateStatus("Analyzing question and planning approach...");
+                await this.delay(1000);
+                
+                const context = memory.conversations[memory.conversations.length - 1].context;
+                const plan = this.createExecutionPlan(question, context);
+                
+                this.updateOutput(`🎯 Execution Plan:\n• Question Type: ${context.type}\n• Required Agents: ${context.requiredAgents.join(', ')}\n• Processing approach: ${plan.approach}`);
+                
+                // Execute agents in planned order
+                const agentResults = {};
+                
+                for (const agentName of plan.agentOrder) {
+                    if (agents[agentName]) {
+                        this.updateStatus(`Coordinating with ${agentName} agent...`);
+                        agentResults[agentName] = await agents[agentName].process(question, memory, agentResults);
+                        await this.delay(800);
+                    }
+                }
+                
+                // Synthesize final response
+                this.updateStatus("Synthesizing comprehensive response...");
+                await this.delay(1000);
+                
+                const finalResponse = this.synthesizeResponse(question, agentResults, memory);
+                
+                this.updateOutput(`✅ Coordination Complete:\n• Agents consulted: ${Object.keys(agentResults).join(', ')}\n• Response synthesized from ${Object.keys(agentResults).length} expert perspectives`);
+                this.updateStatus("Task completed successfully");
+                
+                return finalResponse;
+            }
+            
+            createExecutionPlan(question, context) {
+                const plan = {
+                    approach: "parallel-synthesis",
+                    agentOrder: context.requiredAgents,
+                    synthesisStrategy: "weighted-integration"
+                };
+                
+                // Determine optimal agent order based on question complexity
+                if (context.requiredAgents.includes('research')) {
+                    plan.agentOrder = plan.agentOrder.sort((a, b) => a === 'research' ? -1 : 1);
+                }
+                
+                return plan;
+            }
+            
+            synthesizeResponse(question, agentResults, memory) {
+                const responses = Object.values(agentResults);
+                const agentNames = Object.keys(agentResults);
+                
+                let synthesis = `## Comprehensive Analysis\n\n`;
+                
+                // Integrate perspectives
+                if (agentResults.research) {
+                    synthesis += `**📊 Research Findings:** ${agentResults.research}\n\n`;
+                }
+                
+                if (agentResults.analysis) {
+                    synthesis += `**🔍 Analytical Insights:** ${agentResults.analysis}\n\n`;
+                }
+                
+                if (agentResults.creative) {
+                    synthesis += `**💡 Creative Perspectives:** ${agentResults.creative}\n\n`;
+                }
+                
+                // Add synthesis conclusion
+                synthesis += `**🎯 Coordinated Conclusion:** Based on the integrated expertise of ${agentNames.length} specialized agents, this multi-perspective approach provides a comprehensive understanding of your question about "${question}". Each agent contributed their specialized knowledge to ensure accuracy, depth, and innovative thinking.`;
+                
+                return synthesis;
+            }
+            
+            updateStatus(status) {
+                document.getElementById('coordinatorStatus').textContent = status;
+            }
+            
+            updateOutput(output) {
+                const element = document.getElementById('coordinatorOutput');
+                element.innerHTML = output.replace(/\n/g, '<br>');
+                element.classList.add('thinking');
+                setTimeout(() => element.classList.remove('thinking'), 2000);
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+        
+        class ResearchAgent {
+            constructor() {
+                this.name = "Research Agent";
+                this.expertise = "Factual information, data analysis, and knowledge retrieval";
+                this.knowledgeBase = {
+                    science: "Advanced understanding of scientific principles and research methodologies",
+                    history: "Comprehensive historical knowledge and contextual analysis",
+                    technology: "Current trends and developments in technology",
+                    general: "Broad factual knowledge across multiple domains"
+                };
+            }
+            
+            async process(question, memory, previousResults) {
+                this.updateStatus("Researching factual information...");
+                await this.delay(1500);
+                
+                const research = this.conductResearch(question, memory);
+                
+                this.updateOutput(research);
+                this.updateStatus("Research complete - factual foundation established");
+                
+                return research;
+            }
+            
+            conductResearch(question, memory) {
+                // Simulate research process with domain-specific responses
+                const lowerQuestion = question.toLowerCase();
+                
+                if (lowerQuestion.includes('climate') || lowerQuestion.includes('environment')) {
+                    return "Research indicates climate systems are complex interactions of atmospheric, oceanic, and terrestrial processes. Current scientific consensus shows measurable changes in global temperature patterns, precipitation cycles, and ecosystem dynamics over recent decades.";
+                }
+                
+                if (lowerQuestion.includes('technology') || lowerQuestion.includes('ai') || lowerQuestion.includes('computer')) {
+                    return "Current technology research shows rapid advancement in artificial intelligence, quantum computing, and biotechnology. Key developments include machine learning applications, edge computing infrastructure, and sustainable technology solutions.";
+                }
+                
+                if (lowerQuestion.includes('health') || lowerQuestion.includes('medical')) {
+                    return "Medical research emphasizes evidence-based approaches, personalized medicine, and preventive care. Recent studies highlight the importance of lifestyle factors, genetic predisposition, and environmental influences on health outcomes.";
+                }
+                
+                // General research response
+                return `Comprehensive research reveals multiple authoritative sources and established facts relevant to "${question}". Key data points include peer-reviewed studies, statistical analyses, and expert consensus from relevant fields. Historical context and current developments provide important background for understanding this topic.`;
+            }
+            
+            updateStatus(status) {
+                document.getElementById('researchStatus').textContent = status;
+            }
+            
+            updateOutput(output) {
+                const element = document.getElementById('researchOutput');
+                element.textContent = output;
+                element.classList.add('thinking');
+                setTimeout(() => element.classList.remove('thinking'), 2000);
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+        
+        class AnalysisAgent {
+            constructor() {
+                this.name = "Analysis Agent";
+                this.expertise = "Logical reasoning, pattern recognition, and critical analysis";
+                this.analyticalFrameworks = ["SWOT", "Root Cause", "Comparative", "Systems Thinking"];
+            }
+            
+            async process(question, memory, previousResults) {
+                this.updateStatus("Analyzing patterns and relationships...");
+                await this.delay(1200);
+                
+                const analysis = this.performAnalysis(question, memory, previousResults);
+                
+                this.updateOutput(analysis);
+                this.updateStatus("Analysis complete - logical insights derived");
+                
+                return analysis;
+            }
+            
+            performAnalysis(question, memory, previousResults) {
+                const lowerQuestion = question.toLowerCase();
+                let analysis = "";
+                
+                // Consider previous research if available
+                const researchContext = previousResults.research ? "Building on research findings, " : "";
+                
+                if (lowerQuestion.includes('why') || lowerQuestion.includes('cause')) {
+                    analysis = `${researchContext}causal analysis reveals multiple interconnected factors. Primary drivers include systemic influences, environmental conditions, and behavioral patterns. Secondary effects create feedback loops that amplify or moderate the primary causes.`;
+                }
+                else if (lowerQuestion.includes('compare') || lowerQuestion.includes('versus')) {
+                    analysis = `${researchContext}comparative analysis shows distinct advantages and trade-offs. Key differentiators include efficiency metrics, resource requirements, scalability factors, and long-term sustainability. Context-dependent variables significantly influence optimal choices.`;
+                }
+                else if (lowerQuestion.includes('impact') || lowerQuestion.includes('effect')) {
+                    analysis = `${researchContext}impact assessment indicates both direct and indirect consequences. Immediate effects are measurable and quantifiable, while long-term implications involve complex interactions across multiple systems and stakeholders.`;
+                }
+                else {
+                    analysis = `${researchContext}systematic analysis reveals underlying patterns and logical relationships. Key factors include structural elements, process dynamics, and outcome variables. Critical dependencies and constraint points significantly influence overall system behavior.`;
+                }
+                
+                return analysis;
+            }
+            
+            updateStatus(status) {
+                document.getElementById('analysisStatus').textContent = status;
+            }
+            
+            updateOutput(output) {
+                const element = document.getElementById('analysisOutput');
+                element.textContent = output;
+                element.classList.add('thinking');
+                setTimeout(() => element.classList.remove('thinking'), 2000);
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+        
+        class CreativeAgent {
+            constructor() {
+                this.name = "Creative Agent";
+                this.expertise = "Innovative solutions, alternative perspectives, and creative synthesis";
+                this.creativeFrameworks = ["Design Thinking", "Lateral Thinking", "Analogical Reasoning"];
+            }
+            
+            async process(question, memory, previousResults) {
+                this.updateStatus("Generating innovative perspectives...");
+                await this.delay(1800);
+                
+                const creative = this.generateCreativeResponse(question, memory, previousResults);
+                
+                this.updateOutput(creative);
+                this.updateStatus("Creative synthesis complete - innovative insights generated");
+                
+                return creative;
+            }
+            
+            generateCreativeResponse(question, memory, previousResults) {
+                const lowerQuestion = question.toLowerCase();
+                let creative = "";
+                
+                // Build on previous agent insights
+                const contextualPrefix = previousResults.research || previousResults.analysis ? 
+                    "Expanding beyond conventional analysis, " : "";
+                
+                if (lowerQuestion.includes('future') || lowerQuestion.includes('predict')) {
+                    creative = `${contextualPrefix}innovative forecasting suggests emerging possibilities through convergent trends. Unconventional scenarios include breakthrough technologies, paradigm shifts, and unexpected cross-domain synergies that could fundamentally reshape current assumptions.`;
+                }
+                else if (lowerQuestion.includes('solve') || lowerQuestion.includes('problem')) {
+                    creative = `${contextualPrefix}creative problem-solving reveals unconventional approaches. Alternative solutions include biomimetic strategies, inverse thinking methodologies, and hybrid approaches that combine seemingly unrelated domains for breakthrough innovations.`;
+                }
+                else if (lowerQuestion.includes('improve') || lowerQuestion.includes('optimize')) {
+                    creative = `${contextualPrefix}innovative optimization strategies transcend traditional boundaries. Breakthrough improvements could emerge from systems integration, user experience redesign, and novel resource utilization patterns that challenge current best practices.`;
+                }
+                else {
+                    creative = `${contextualPrefix}creative exploration uncovers hidden connections and alternative frameworks. Innovative perspectives include metaphorical thinking, cross-disciplinary analogies, and emergent possibilities that conventional analysis might overlook.`;
+                }
+                
+                return creative;
+            }
+            
+            updateStatus(status) {
+                document.getElementById('creativeStatus').textContent = status;
+            }
+            
+            updateOutput(output) {
+                const element = document.getElementById('creativeOutput');
+                element.textContent = output;
+                element.classList.add('thinking');
+                setTimeout(() => element.classList.remove('thinking'), 2000);
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+        
+        // Initialize the multi-agent system
+        const multiAgentSystem = new MultiAgentSystem();
+        
+        // Main processing function
+        async function processQuestion() {
+            const questionInput = document.getElementById('questionInput');
+            const askButton = document.getElementById('askButton');
+            const finalResponse = document.getElementById('finalResponse');
+            
+            const question = questionInput.value.trim();
+            
+            if (!question) {
+                alert('Please enter a question first.');
+                return;
+            }
+            
+            // Disable input during processing
+            askButton.disabled = true;
+            askButton.textContent = 'Processing...';
+            finalResponse.textContent = 'Coordinating agents to answer your question...';
+            
+            try {
+                // Process the question through the multi-agent system
+                const response = await multiAgentSystem.processQuestion(question);
+                
+                // Display final response
+                finalResponse.innerHTML = response.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                // Update memory display
+                updateMemoryDisplay();
+                
+                // Clear input
+                questionInput.value = '';
+                
+            } catch (error) {
+                finalResponse.textContent = 'Error processing question: ' + error.message;
+            } finally {
+                // Re-enable input
+                askButton.disabled = false;
+                askButton.textContent = 'Ask Question';
+            }
+        }
+        
+        function updateMemoryDisplay() {
+            const memoryDisplay = document.getElementById('memoryDisplay');
+            const conversations = multiAgentSystem.memory.conversations;
+            
+            if (conversations.length === 0) {
+                memoryDisplay.textContent = 'No previous interactions';
+                return;
+            }
+            
+            const recentConversations = conversations.slice(-3); // Show last 3
+            let memoryHtml = '';
+            
+            recentConversations.forEach((conv, index) => {
+                const timeAgo = new Date(conv.timestamp).toLocaleTimeString();
+                memoryHtml += `<div class="memory-item">
+                    📝 ${timeAgo}: "${conv.question.substring(0, 50)}${conv.question.length > 50 ? '...' : ''}"
+                </div>`;
+            });
+            
+            memoryDisplay.innerHTML = memoryHtml;
+        }
+        
+        // Allow Enter key to submit question
+        document.getElementById('questionInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                processQuestion();
+            }
+        });
+    </script>
+</body>
+</html>
